@@ -1,0 +1,27 @@
+# Documentation build output
+_build/
+_site/
+site/
+docs/_build/
+docs/site/
+
+# Editor directories and files
+.vscode/
+.idea
+.DS_Store
+*.suo
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.cache/
+
+# OS
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db

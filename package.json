@@ -1,0 +1,12 @@
+{
+  "name": "vedenginee",
+  "version": "1.0.0",
+  "description": "It is an AI powered search Enginee, which provides most optimized search result",
+  "license": "ISC",
+  "author": "Subho",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

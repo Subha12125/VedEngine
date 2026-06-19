@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🔍 VedEngine
 
@@ -391,4 +391,3 @@ This project is licensed under the **ISC License**.
 **Built with ❤️ by [Subho](https://github.com/Subha12125)**
 
 </div>
-]]>

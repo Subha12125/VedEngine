@@ -3,6 +3,7 @@
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -16,6 +17,14 @@ model Document {
   id        String   @id @default(uuid())
   title     String
   content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model SearchLog {
+  id       String   @id @default(uuid())
+  query    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

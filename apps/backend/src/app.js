@@ -1,14 +1,20 @@
 import fastify from "fastify";
 import healthCheckRoute from "./routes/health.routes.js";
 import { documentRoutes } from "./routes/document.route.js";
+import { searchLogRoutes } from "./routes/searchLog.route.js";
+
 
 // Build the Fastify app
 const buildApp = async()=> {
     const app = fastify({
         logger: true,
     })
+    // Registering all routes
     await app.register(healthCheckRoute, { prefix: '/api/v1' });
+    // Registering document routes
     await app.register(documentRoutes, { prefix: '/api/v1' });
+    // Registering search log routes
+    await app.register(searchLogRoutes, { prefix: '/api/v1/search-log' });
     return app;
 }
 

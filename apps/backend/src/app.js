@@ -15,6 +15,8 @@ const buildApp = async()=> {
     await app.register(documentRoutes, { prefix: '/api/v1' });
     // Registering search log routes
     await app.register(searchLogRoutes, { prefix: '/api/v1/search-log' });
+    // Registering search routes
+    await app.register(searchRoutes, { prefix: '/api/v1/search' });
     return app;
 }
 

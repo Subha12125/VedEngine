@@ -64,7 +64,7 @@ export const searchDocumentController = async(request, reply) => {
             3. return meta data
             4. return time taken
         */
-        return reply.code(200).send({
+        const result = {
             status:"success",
             message: "Documents found successfully",
             query: q,
@@ -74,7 +74,13 @@ export const searchDocumentController = async(request, reply) => {
             totalPages: results.totalPages,
             data: results.documents,
             timeTake
-        });
+        };
+
+        // Setting cache - and store the data for 1 day
+        // Why ? : To reduce the database load and response time
+        await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
+
+        return reply.code(200).send(result);
     }
     catch(error){
         console.error("Error in searchDocumentController", error);

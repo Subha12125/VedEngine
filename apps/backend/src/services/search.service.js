@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma.config.js";
+import { redis } from "../config/redis.config.js";
 
 // Search document
 // @param query - query string
@@ -10,6 +11,22 @@ import { prisma } from "../config/prisma.config.js";
 export const searchDocument = async (query, page = 1, limit = 10, userId = null, sort = "newest") => {
     try{
         const skip = (page - 1)*limit;
+
+        /**
+         * Key format: search:<query>:page:<page>:limit:<limit>:sort:<sort>
+        */
+        // To create unique key for each search.
+        // Why ? : Because each search will have different query, page, limit and sort.
+
+        const cacheKey = `search:${query}:page:${page}:limit:${limit}:sort:${sort}`;
+
+        // Checking cache
+        const cachedData = await redis.get(cacheKey);
+        if(cachedData){
+            console.log("✅ Cache hit ✅");
+            return JSON.parse(cachedData);
+        }
+        console.log("❌ Cache miss ❌");
         
         // Search where query is present in title or content
         const where = {
@@ -81,3 +98,4 @@ export const searchSuggestion = async (query, limit = 10, userId = null) => {
         throw error;
     }
 }
+

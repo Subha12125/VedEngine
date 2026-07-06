@@ -1,10 +1,12 @@
 import buildApp from "./app.js";
 import { PORT } from "./config/env.config.js";
 
+// Starting server
 const startServer = async () => {
   try {
     const app = await buildApp();
 
+    // Listening on port
     await app.listen({
       port: PORT,
       host: "0.0.0.0",

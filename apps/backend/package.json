@@ -18,6 +18,7 @@
     "@fastify/swagger-ui": "^6.0.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@upstash/redis": "^1.38.0",
     "bullmq": "^5.78.1",
     "dotenv": "^17.4.2",
     "fastify": "^5.8.5",

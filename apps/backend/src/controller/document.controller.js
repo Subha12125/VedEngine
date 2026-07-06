@@ -1,10 +1,10 @@
 import { createDocument, updateDocument, deleteDocument, findDocumentByID, getAllDocument, searchDocuments } from "../services/document.service.js";
 
 //Creating New Document 
-export const craeteNewDocument = async (request, reply) => {
+export const createNewDocument = async (request, reply) => {
     try {
         const newDocument = await createDocument(request.body);
-        return reply.code(200).send({ status: "Success", data: newDocument, success: true });
+        return reply.code(201).send({ status: "Success", data: newDocument, success: true });
     } catch (error) {
         console.log(error);
         return reply.code(500).send({ message: error.message, success: false });

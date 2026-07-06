@@ -1,4 +1,4 @@
-import { prisma } from "../config/prisma.config.js";
+import prisma from "../config/prisma.config.js";
 import { redis } from "../config/redis.config.js";
 
 // Search document
@@ -31,8 +31,8 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
         // Search where query is present in title or content
         const where = {
             OR:[
-                {title:{contains:query}, mode: "insensitive"},
-                {content:{contains:query}, mode: "insensitive"},
+                {title:{contains:query, mode: "insensitive"}},
+                {content:{contains:query, mode: "insensitive"}},
             ]
         };
 
@@ -52,13 +52,18 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
         ]);
         
         // Returning documents and meta data
-        return {
+        const result = {
             documents,
             page,
             limit,
             total,
             totalPages: Math.ceil(total/limit),
         };
+
+        // Cache the result for 1 day (86400 seconds)
+        await redis.set(cacheKey, JSON.stringify(result), { ex: 86400 });
+
+        return result;
 
     }
     catch(error){

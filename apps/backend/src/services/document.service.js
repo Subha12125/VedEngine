@@ -59,8 +59,8 @@ export const searchDocuments = async (keyword) => {
         const results = await prisma.document.findMany({
             where: {
                 OR: [
-                    { title: { contains: keyword } },
-                    { content: { contains: keyword } }
+                    { title: { contains: keyword, mode: "insensitive" } },
+                    { content: { contains: keyword, mode: "insensitive" } }
                 ]
             }
         });

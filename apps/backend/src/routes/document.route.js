@@ -1,9 +1,8 @@
-import fastify from "fastify";
-import {craeteNewDocument, getAllDocuments, getDocumentByID, getDocumentByKeyword, updateExistingDocument, deleteExistingDocument} from "../controller/document.controller.js";
+import {createNewDocument, getAllDocuments, getDocumentByID, getDocumentByKeyword, updateExistingDocument, deleteExistingDocument} from "../controller/document.controller.js";
 
 export const documentRoutes = async (fastify)=>{
     // Router for creating new Document 
-    fastify.post("/create", craeteNewDocument);
+    fastify.post("/create", createNewDocument);
 
     // Router for updating existing Document
     fastify.put("/:id", updateExistingDocument);

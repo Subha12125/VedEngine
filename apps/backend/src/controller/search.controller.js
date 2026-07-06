@@ -1,6 +1,6 @@
 import { searchDocument, searchSuggestion } from "../services/search.service.js";
 
-import { createSearchLog } from "../config/supabase.config.js";
+import { createSearchLog } from "../services/searchLog.service.js";
 
 // Search document
 // @param request - request object
@@ -41,7 +41,7 @@ export const searchDocumentController = async(request, reply) => {
         }
 
         // Check if query length is less than 2
-        if(q.trim().lenght()<2){
+        if(q.trim().length < 2){
             return reply.code(400).send({
                 status: "error",
                 message: "Query must be atleast two characters"
@@ -76,10 +76,6 @@ export const searchDocumentController = async(request, reply) => {
             timeTake
         };
 
-        // Setting cache - and store the data for 1 day
-        // Why ? : To reduce the database load and response time
-        await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
-
         return reply.code(200).send(result);
     }
     catch(error){
@@ -100,7 +96,7 @@ export const getSuggestions = async (request,reply) => {
         const { q } = request.query;
 
         if (!q?.trim()) {
-            return reply.status(400).send({
+            return reply.code(400).send({
                 status: "error",
                 message: "Query is required",
             });
@@ -108,14 +104,14 @@ export const getSuggestions = async (request,reply) => {
 
         const suggestions = await searchSuggestion(q);
 
-        return reply.status(200).send({
+        return reply.code(200).send({
             status: "success",
             message: "Suggestions found successfully",
             data: suggestions,
         });
     } catch (error) {
         console.error("Error in getSuggestions", error);
-        return reply.status(500).send({
+        return reply.code(500).send({
             status: "error",
             message: "Internal server error"
         });

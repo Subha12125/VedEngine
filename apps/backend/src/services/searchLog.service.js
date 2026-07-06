@@ -32,7 +32,7 @@ export const getRecentSearches = async () => {
 // Take the limit of 10 
 export const getTrendingSearches = async () => {
     try {
-        return prisma.searchLog.groupBy({
+        return await prisma.searchLog.groupBy({
             by: ["query"],
             orderBy: { _count: { query: "desc" } },
             take: 10

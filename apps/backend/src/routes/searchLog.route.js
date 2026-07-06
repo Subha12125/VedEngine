@@ -1,4 +1,3 @@
-import fastify from "fastify";
 import { getRecentSearcheController, getTrendingSearcheController } from "../controller/searchLog.controller.js";
 
 export const searchLogRoutes = async (fastify) => {

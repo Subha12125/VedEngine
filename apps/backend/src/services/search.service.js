@@ -36,20 +36,51 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
             ]
         };
 
-        // Finding documents and total count
-        // Using Promise.all to find documents and total count
-        const [documents, total] = await Promise.all([
-            prisma.document.findMany({
-                where,
-                skip, 
-                take: limit,
-                orderBy: {
-                    createdAt:
-                        sort === "newest" ? "desc" : "asc"
-                }
-            }),
-            prisma.document.count({where})
-        ]);
+        /*
+            ts_rank - Calculates the ranking of documents based on the query.
+            plainto_tsquery - Converts a query string to a tsquery value.
+            @@ - performs the tsquery match.
+            to_tsvector - Converts a text to a tsvector value.
+        */
+
+        const document = await prisma.$queryRaw`
+        SELECT  
+            id,
+            title,
+            content,
+            "createdAt",
+            "updatedAt"
+            ts_rank(
+                search_vector,
+                plainto_tsquery('english', ${query})
+            ) AS RANK
+        FROM 
+            "Document"
+        WHERE
+            to_tsvector('english',title || '' || content)
+            @@
+            plainto_tsquery('english', ${query})
+        ORDER BY
+            RANK ${sort === "newest" ? "DESC" : "ASC"}
+        LIMIT ${limit}
+        OFFSET ${skip};
+        `;
+
+        // Getting total number of documents for pagination
+        // without RANK
+        const countResult = await prisma.$queryRaw`
+        SELECT
+            COUNT(*) AS total
+        FROM
+            "Document"
+        WHERE
+            to_tsvector('english',title || '' || content)
+            @@
+            plainto_tsquery('english', ${query});
+        `;
+
+        // Converting total count to number
+        const total = Number(countResult[0].total);
         
         // Returning documents and meta data
         const result = {

@@ -19,7 +19,7 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
         // To create unique key for each search.
         // Why ? : Because each search will have different query, page, limit and sort.
 
-        const cacheKey = `search:${query}:page:${page}:limit:${limit}:sort:${sort}`;
+        const cacheKey = `search:${query.trim().toLowerCase()}:page:${page}:limit:${limit}:sort:${sort}`;
 
         // Checking cache
         const cachedData = await redis.get(cacheKey);

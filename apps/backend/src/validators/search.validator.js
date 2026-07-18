@@ -8,6 +8,9 @@ export const searchSchema = z.object({
     q: z.string().trim().min(2, "Query must be atleast two characters"),
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(10),
+    sort: z.enum(["newest", "oldest"]).optional().default("newest"),
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
 })
 
 

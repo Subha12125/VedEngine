@@ -29,7 +29,9 @@ export const searchDocumentController = async(request, reply) => {
             page=1,
             limit=10,
             userId = null,
-            sort="newest"
+            sort="newest",
+            from = null,
+            to = null
         } = request.query;
 
         // Check for empty query
@@ -51,7 +53,15 @@ export const searchDocumentController = async(request, reply) => {
         await createSearchLog(q);
 
         // Searching documents
-        const results = await searchDocument(q, Number(page), Number(limit), null, sort);
+        const results = await searchDocument(
+            q, 
+            Number(page), 
+            Number(limit), 
+            null, 
+            sort,
+            from,
+            to
+        );
         
         const endTime = Date.now();
 

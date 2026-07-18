@@ -7,7 +7,8 @@ export const createSearchLog = async (query) => {
     try {
         return await prisma.searchLog.create({ data: { query: query } });
     } catch (error) {
-        return { success: false, message: "Failed to create search log", error: error.message }
+        console.error("Failed to create search log:", error.message);
+        throw error;
     }
 }
 
@@ -22,7 +23,8 @@ export const getRecentSearches = async () => {
             take: 10
         })
     } catch (error) {
-        return { success: false, message: "Failed to get search logs", error: error.message }
+        console.error("Failed to get recent searches:", error.message);
+        throw error;
     }
 }
 
@@ -38,6 +40,7 @@ export const getTrendingSearches = async () => {
             take: 10
         })
     } catch (error) {
-        return { success: false, message: "Failed to get trending searches", error: error.message }
+        console.error("Failed to get trending searches:", error.message);
+        throw error;
     }
 }

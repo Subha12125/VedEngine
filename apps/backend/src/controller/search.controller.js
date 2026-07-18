@@ -33,7 +33,7 @@ export const searchDocumentController = async(request, reply) => {
         } = request.query;
 
         // Check for empty query
-        if(!q.trim()) {
+        if(!q?.trim()) {
             return reply.code(400).send({
                 status: "error",
                 message: "Query is required"

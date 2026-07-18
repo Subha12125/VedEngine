@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.config.js";
 import { redis } from "../config/redis.config.js";
+import { Prisma } from "../generated/prisma/client.ts";
 
 // Search document
 // @param query - query string
@@ -24,44 +25,61 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
         const cachedData = await redis.get(cacheKey);
         if(cachedData){
             console.log("✅ Cache hit ✅");
-            return JSON.parse(cachedData);
+            // Upstash redis client auto-parses JSON, so cachedData may already be an object
+            if (typeof cachedData === "string") {
+                return JSON.parse(cachedData);
+            }
+            return cachedData;
         }
         console.log("❌ Cache miss ❌");
-        
-        // Search where query is present in title or content
-        const where = {
-            OR:[
-                {title:{contains:query, mode: "insensitive"}},
-                {content:{contains:query, mode: "insensitive"}},
-            ]
-        };
 
-        /*
-            ts_rank - Calculates the ranking of documents based on the query.
-            plainto_tsquery - Converts a query string to a tsquery value.
-            @@ - performs the tsquery match.
-            to_tsvector - Converts a text to a tsvector value.
-        */
+        /** 
+         * ts_rank - Calculates the ranking of documents based on the query.
+         * plainto_tsquery - Converts a query string to a tsquery value.
+         * @@ - performs the tsquery match.
+         * to_tsvector - Converts a text to a tsvector value.
+         * ts_headline() - Generates a highlighted version of the document, 
+         * replacing search terms with HTML tags (by default `<b>` and `</b>`).
+         * 
+         * Parameters:
+         * 1. 'english' - The dictionary to use for tokenization and stemming.
+         * 2. content - The text to search within.
+         * 3. plainto_tsquery('english', ${query}) - The query to search for.
+         * 4. 'StartGroup=<b> StopGroup=</b> MaxWords=20 MinWords=3 RankWords=10'
+         *    - StartGroup=<b>, StopGroup=</b>: These define the tags to wrap around the matched terms.
+         *    - MaxWords=20: The maximum number of words to include in the snippet.
+         *    - MinWords=3: The minimum number of words to include in the snippet.
+         *    - RankWords=10: The number of top-ranked words to prioritize in the snippet.
+         */
 
-        const document = await prisma.$queryRaw`
+        // Build ORDER BY direction safely — SQL keywords cannot be parameterized,
+        // so we use Prisma.sql to inject a trusted literal.
+        const orderDirection = sort === "newest" ? Prisma.sql`DESC` : Prisma.sql`ASC`;
+
+        const documents = await prisma.$queryRaw`
         SELECT  
             id,
             title,
-            content,
+            ts_headline(
+                'english',
+                content,
+                plainto_tsquery('english', ${query}),
+                'StartSel=<mark>, StopSel=</mark>, MaxWords=20, MinWords=3'
+            ) AS snippet,
             "createdAt",
-            "updatedAt"
+            "updatedAt",
             ts_rank(
-                search_vector,
+                to_tsvector('english', title || ' ' || content),
                 plainto_tsquery('english', ${query})
-            ) AS RANK
+            ) AS rank
         FROM 
             "Document"
         WHERE
-            to_tsvector('english',title || '' || content)
+            to_tsvector('english', title || ' ' || content)
             @@
             plainto_tsquery('english', ${query})
         ORDER BY
-            RANK ${sort === "newest" ? "DESC" : "ASC"}
+            rank ${orderDirection}
         LIMIT ${limit}
         OFFSET ${skip};
         `;
@@ -74,7 +92,7 @@ export const searchDocument = async (query, page = 1, limit = 10, userId = null,
         FROM
             "Document"
         WHERE
-            to_tsvector('english',title || '' || content)
+            to_tsvector('english', title || ' ' || content)
             @@
             plainto_tsquery('english', ${query});
         `;
@@ -134,4 +152,3 @@ export const searchSuggestion = async (query, limit = 10, userId = null) => {
         throw error;
     }
 }
-

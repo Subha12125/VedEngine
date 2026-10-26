@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logoImg from '../assets/logo.png';
 
 /**
  * Navbar Component - Modern, Responsive Navigation Header
@@ -52,23 +51,13 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-[#faf4ec]/95 backdrop-blur-md border-b border-[#e8ded2] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Brand Logo & Website Title */}
-        <Link to="/dashboard" className="flex items-center gap-3 group shrink-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-[#ebdcc9] flex items-center justify-center p-1.5 shadow-sm shadow-[#d97757]/10 group-hover:border-[#d97757]/50 group-hover:shadow-md group-hover:scale-105 transition-all">
-            <img
-              src={logoImg}
-              alt="VedEngine Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-xl text-[#2d2721] tracking-tight group-hover:text-[#d97757] transition-colors">
-              VedEngine
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-[#8c7b6c] font-semibold -mt-0.5">
-              Enterprise Document Search
-            </span>
-          </div>
+        {/* Brand Logo from public/logo.png */}
+        <Link to="/dashboard" className="flex items-center group shrink-0 py-1" title="VedEngine Home">
+          <img
+            src="/logo.png"
+            alt="VedEngine"
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain group-hover:opacity-90 group-hover:scale-[1.02] transition-all duration-200"
+          />
         </Link>
 
         {/* Desktop Navigation Tabs (Only rendered when tabs are available) */}

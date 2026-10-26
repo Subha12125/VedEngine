@@ -1,20 +1,23 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 /**
  * Navbar Component - Modern, Responsive Navigation Header
- * Features brand favicon, website name, role-based controls,
- * and a collapsible mobile navigation drawer.
+ * In Google search home mode: renders clean minimal links (About, Docs) on the left.
+ * In search results or internal pages: renders the brand logo on the left.
  */
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
   const isAdmin = user?.role === 'admin';
+  const hasActiveSearch = Boolean(searchParams.get('q'));
+  const isHomeView = (location.pathname === '/' || location.pathname === '/dashboard') && !hasActiveSearch;
 
   const handleLogout = () => {
     logout();
@@ -51,16 +54,36 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-[#faf4ec]/95 backdrop-blur-md border-b border-[#e8ded2] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Brand Logo from public/logo.png */}
-        <Link to="/dashboard" className="flex items-center group shrink-0 py-1" title="VedEngine Home">
-          <img
-            src="/logo.png"
-            alt="VedEngine"
-            className="h-8 sm:h-9 md:h-10 w-auto object-contain group-hover:opacity-90 group-hover:scale-[1.02] transition-all duration-200"
-          />
-        </Link>
+        {/* Left Side: Brand Logo or Google-style links */}
+        <div className="flex items-center gap-6">
+          {isHomeView ? (
+            /* Google Homepage Top-Left Minimal Links */
+            <div className="flex items-center gap-4 text-xs font-semibold text-[#786b5e]">
+              <Link to="/about" className="hover:text-[#2d2721] transition-colors">
+                About
+              </Link>
+              <a
+                href="https://github.com/Subha12125/VedEngine"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#2d2721] transition-colors"
+              >
+                Docs
+              </a>
+            </div>
+          ) : (
+            /* Results & Internal Page Top-Left Logo */
+            <Link to="/dashboard" className="flex items-center group shrink-0 py-1" title="VedEngine Home">
+              <img
+                src="/logo.png"
+                alt="VedEngine"
+                className="h-8 sm:h-9 md:h-10 w-auto object-contain group-hover:opacity-90 group-hover:scale-[1.02] transition-all duration-200"
+              />
+            </Link>
+          )}
+        </div>
 
-        {/* Desktop Navigation Tabs (Only rendered when tabs are available) */}
+        {/* Desktop Navigation Tabs (Admins: Documents & Analytics) */}
         {visibleLinks.length > 0 && (
           <nav className="hidden md:flex items-center gap-1 bg-[#f4ebd9]/70 p-1.5 rounded-2xl border border-[#ebdcc9]">
             {visibleLinks.map((link) => {
@@ -83,7 +106,7 @@ export default function Navbar() {
           </nav>
         )}
 
-        {/* Right Actions: Desktop Auth State */}
+        {/* Right Actions: Auth State & User Menu */}
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             /* Logged-in User Profile Chip & Logout */
@@ -159,6 +182,24 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-[#ebdcc9] bg-[#fcf8f2] px-4 pt-3 pb-5 space-y-3 shadow-lg">
           
+          <div className="flex items-center gap-4 text-xs font-semibold text-[#786b5e] px-2 pb-2 border-b border-[#ebdcc9]/70">
+            <Link
+              to="/about"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="hover:text-[#2d2721] transition-colors"
+            >
+              About
+            </Link>
+            <a
+              href="https://github.com/Subha12125/VedEngine"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#2d2721] transition-colors"
+            >
+              Docs
+            </a>
+          </div>
+
           {visibleLinks.length > 0 && (
             <div className="space-y-1">
               {visibleLinks.map((link) => {

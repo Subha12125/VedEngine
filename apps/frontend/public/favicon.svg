@@ -1,8 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Rounded Base Card -->
   <rect width="64" height="64" rx="16" fill="#fcf8f2"/>
-  <rect x="1" y="1" width="62" height="62" rx="15" stroke="#e8ded2" stroke-width="2"/>
-  <circle cx="28" cy="28" r="14" stroke="#d97757" stroke-width="4.5" fill="none"/>
-  <line x1="39" y1="39" x2="52" y2="52" stroke="#2d2721" stroke-width="4.5" stroke-linecap="round"/>
-  <!-- AI Sparkle accent -->
-  <path d="M28 19L29.5 24.5L35 26L29.5 27.5L28 33L26.5 27.5L21 26L26.5 24.5L28 19Z" fill="#d97757"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" stroke="#ebdcc9" stroke-width="2"/>
+  
+  <!-- Bold Geometric V Icon in Terracotta -->
+  <path d="M16 18H24.8L32 39.5L39.2 18H48L36.2 47H27.8L16 18Z" fill="#d97757"/>
+  
+  <!-- Accent Dot -->
+  <circle cx="49" cy="17" r="3.5" fill="#2d2721"/>
 </svg>

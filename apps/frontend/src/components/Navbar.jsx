@@ -5,8 +5,8 @@ import logoImg from '../assets/logo.png';
 
 /**
  * Navbar Component - Modern, Responsive Navigation Header
- * Features brand favicon, live status indicator, pill-shaped tabs,
- * role-based controls, and a collapsible mobile navigation drawer.
+ * Features brand favicon, website name, role-based controls,
+ * and a collapsible mobile navigation drawer.
  */
 export default function Navbar() {
   const location = useLocation();
@@ -24,17 +24,6 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    {
-      name: 'Search',
-      path: '/dashboard',
-      altPath: '/',
-      icon: (
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      ),
-      visible: true,
-    },
     {
       name: 'Documents',
       path: '/documents',
@@ -57,8 +46,10 @@ export default function Navbar() {
     },
   ];
 
+  const visibleLinks = navLinks.filter((link) => link.visible);
+
   return (
-    <header className="sticky top-0 z-50 bg-[#faf4ec]/90 backdrop-blur-md border-b border-[#e8ded2] transition-all">
+    <header className="sticky top-0 z-50 bg-[#faf4ec]/95 backdrop-blur-md border-b border-[#e8ded2] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo & Website Title */}
@@ -71,27 +62,20 @@ export default function Navbar() {
             />
           </div>
           <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xl text-[#2d2721] tracking-tight group-hover:text-[#d97757] transition-colors">
-                VedEngine
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#eef7ee] text-[#2e7d32] border border-[#c8e6c9]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#388e3c] animate-pulse"></span>
-                AI RAG
-              </span>
-            </div>
+            <span className="font-extrabold text-xl text-[#2d2721] tracking-tight group-hover:text-[#d97757] transition-colors">
+              VedEngine
+            </span>
             <span className="text-[10px] uppercase tracking-wider text-[#8c7b6c] font-semibold -mt-0.5">
               Enterprise Document Search
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#f4ebd9]/70 p-1.5 rounded-2xl border border-[#ebdcc9]">
-          {navLinks
-            .filter((link) => link.visible)
-            .map((link) => {
-              const active = isActive(link.path) || (link.altPath && isActive(link.altPath));
+        {/* Desktop Navigation Tabs (Only rendered when tabs are available) */}
+        {visibleLinks.length > 0 && (
+          <nav className="hidden md:flex items-center gap-1 bg-[#f4ebd9]/70 p-1.5 rounded-2xl border border-[#ebdcc9]">
+            {visibleLinks.map((link) => {
+              const active = isActive(link.path);
               return (
                 <Link
                   key={link.path}
@@ -107,7 +91,8 @@ export default function Navbar() {
                 </Link>
               );
             })}
-        </nav>
+          </nav>
+        )}
 
         {/* Right Actions: Desktop Auth State */}
         <div className="hidden md:flex items-center gap-3">
@@ -185,11 +170,10 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-[#ebdcc9] bg-[#fcf8f2] px-4 pt-3 pb-5 space-y-3 shadow-lg">
           
-          <div className="space-y-1">
-            {navLinks
-              .filter((link) => link.visible)
-              .map((link) => {
-                const active = isActive(link.path) || (link.altPath && isActive(link.altPath));
+          {visibleLinks.length > 0 && (
+            <div className="space-y-1">
+              {visibleLinks.map((link) => {
+                const active = isActive(link.path);
                 return (
                   <Link
                     key={link.path}
@@ -206,9 +190,10 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-          </div>
+            </div>
+          )}
 
-          <div className="pt-3 border-t border-[#ebdcc9]/80">
+          <div className={`pt-3 ${visibleLinks.length > 0 ? 'border-t border-[#ebdcc9]/80' : ''}`}>
             {isAuthenticated ? (
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-2">

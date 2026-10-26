@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { documentAPI } from '../services/api';
 import UploadModal from '../components/UploadModal';
 import Loading from '../components/Loading';
@@ -21,13 +21,8 @@ export default function Documents() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
-
   const fetchDocuments = async () => {
     try {
-      setLoading(true);
       setError('');
       const res = await documentAPI.getAllDocuments();
       const docsList = res.data?.documents || res.data || [];
@@ -39,6 +34,10 @@ export default function Documents() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
 
   const handleDeleteDocument = async (id) => {
     if (!isAdmin) return;

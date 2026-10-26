@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { analyticsAPI } from '../services/api';
 import Loading from '../components/Loading';
 
@@ -11,13 +11,8 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
   const fetchAnalytics = async () => {
     try {
-      setLoading(true);
       setError('');
 
       try {
@@ -41,6 +36,10 @@ export default function Analytics() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
 
   if (loading) {
     return <Loading message="Loading search analytics metrics..." />;

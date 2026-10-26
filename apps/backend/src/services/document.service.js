@@ -12,9 +12,13 @@ export const createDocument = async (data) => {
 };
 
 // GET all Documents 
-export const getAllDocument = async () => {
+export const getAllDocument = async (limit = null) => {
     try {
-        const documents = await prisma.document.findMany({ orderBy: { createdAt: 'desc' } });
+        const queryOptions = { orderBy: { createdAt: 'desc' } };
+        if (limit && Number(limit) > 0) {
+            queryOptions.take = Number(limit);
+        }
+        const documents = await prisma.document.findMany(queryOptions);
         return documents;
     } catch (error) {
         console.log(error);

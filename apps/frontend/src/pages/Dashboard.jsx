@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Searchbar from '../components/Searchbar';
 import SearchResult from '../components/SearchResult';
 import UploadModal from '../components/UploadModal';
 import Loading from '../components/Loading';
 import { searchAPI, documentAPI, analyticsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import logoImg from '../assets/logo.png';
 
 /**
  * Dashboard Component Page - Public Search Engine
@@ -23,6 +22,8 @@ export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [aiAnswer, setAiAnswer] = useState(null);
+  const [aiSources, setAiSources] = useState([]);
 
   const [documents, setDocuments] = useState([]);
   const [stats, setStats] = useState({ totalDocs: 0, totalQueries: 0, avgLatency: '32ms' });
@@ -30,14 +31,8 @@ export default function Dashboard() {
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchDashboardOverview();
-  }, []);
-
   const fetchDashboardOverview = async () => {
     try {
-      setLoadingInitial(true);
-      
       const docsRes = await documentAPI.getAllDocuments();
       const docsList = docsRes.data?.documents || docsRes.data || [];
       setDocuments(Array.isArray(docsList) ? docsList : []);
@@ -50,7 +45,7 @@ export default function Dashboard() {
           totalQueries: analyticsData.totalQueries || 128,
           avgLatency: analyticsData.avgLatency || '32ms',
         });
-      } catch (analyticsErr) {
+      } catch {
         setStats((prev) => ({ ...prev, totalDocs: docsList.length }));
       }
     } catch (err) {
@@ -60,12 +55,18 @@ export default function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    fetchDashboardOverview();
+  }, []);
+
   const handleSearch = async (queryText) => {
     if (!queryText.trim()) return;
 
     try {
       setIsSearching(true);
       setSearchError('');
+      setAiAnswer(null);
+      setAiSources([]);
       setCurrentQuery(queryText);
       setHasSearched(true);
 
@@ -73,10 +74,14 @@ export default function Dashboard() {
       const resultsList = res.data?.data || res.data?.results || res.data?.documents || (Array.isArray(res.data) ? res.data : []);
       
       setSearchResults(Array.isArray(resultsList) ? resultsList : []);
+      setAiAnswer(res.data?.aiAnswer || null);
+      setAiSources(res.data?.aiSources || []);
     } catch (err) {
       console.error('Search query execution failed:', err);
       setSearchError(err.response?.data?.message || 'Search failed. Please check backend connection.');
       setSearchResults([]);
+      setAiAnswer(null);
+      setAiSources([]);
     } finally {
       setIsSearching(false);
     }
@@ -191,6 +196,35 @@ export default function Dashboard() {
                 {searchResults.length} document match{searchResults.length === 1 ? '' : 'es'}
               </span>
             </div>
+
+            {aiAnswer && (
+              <div className="bg-[#fcf8f2] border-2 border-[#d97757]/40 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-[#d97757] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                      ✦
+                    </div>
+                    <h4 className="font-serif font-extrabold text-lg text-[#2d2721]">VedEngine AI Summary & Synthesis</h4>
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#d97757] bg-[#f4ebd9] px-3 py-1 rounded-full border border-[#ebdcc9]">
+                    Grounded RAG Answer
+                  </span>
+                </div>
+                <div className="text-sm text-[#362f27] leading-relaxed whitespace-pre-line font-normal bg-white/70 p-4 rounded-2xl border border-[#ebdcc9]/60">
+                  {aiAnswer}
+                </div>
+                {aiSources.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#ebdcc9]/60 text-xs">
+                    <span className="text-[#8c7b6c] font-semibold">Sources:</span>
+                    {aiSources.map((s, idx) => (
+                      <span key={idx} className="px-2.5 py-1 bg-white border border-[#ebdcc9] rounded-lg text-[#2d2721] font-mono text-[11px]">
+                        [{s.index || idx + 1}] {s.title || 'Source'}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {searchResults.length > 0 ? (
               <div className="space-y-4">

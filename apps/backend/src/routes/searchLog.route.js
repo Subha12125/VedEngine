@@ -2,6 +2,9 @@ import { getRecentSearcheController, getTrendingSearcheController } from "../con
 
 export const searchLogRoutes = async (fastify) => {
 
+    // Route for getting search logs (default to recent)
+    fastify.get("/", getRecentSearcheController);
+
     // Route for getting recent searches
     fastify.get("/recent", getRecentSearcheController);
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
 
 /**
@@ -30,6 +30,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   /**
+   * Logout method
+   * Clears saved token and user state, redirecting app to unauthenticated state.
+   */
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  /**
    * Effect: On initial app load, if a token exists in localStorage,
    * verify session validity by fetching user profile from the backend API.
    */
@@ -51,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     restoreSession();
-  }, [token]);
+  }, [token, logout]);
 
   /**
    * Login method
@@ -115,17 +126,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: message };
     }
   };
-
-  /**
-   * Logout method
-   * Clears saved token and user state, redirecting app to unauthenticated state.
-   */
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-  }, []);
 
   // Context value object containing all reactive state and methods
   const value = {

@@ -15,17 +15,16 @@ export const searchDocument = async (
   limit = 10,
   userId = null,
   sort = "newest",
+  from = null,
+  to = null,
 ) => {
   try {
     const skip = (page - 1) * limit;
 
     /**
-     * Key format: search:<query>:page:<page>:limit:<limit>:sort:<sort>
+     * Key format: search:<query>:page:<page>:limit:<limit>:sort:<sort>:from:<from>:to:<to>
      */
-    // To create unique key for each search.
-    // Why ? : Because each search will have different query, page, limit and sort.
-
-    const cacheKey = `search:${query.trim().toLowerCase()}:page:${page}:limit:${limit}:sort:${sort}`;
+    const cacheKey = `search:${query.trim().toLowerCase()}:page:${page}:limit:${limit}:sort:${sort}${from ? `:from:${from}` : ""}${to ? `:to:${to}` : ""}`;
 
     // Checking cache — wrapped in try-catch so search still works if Redis is unavailable
     try {
@@ -73,12 +72,18 @@ export const searchDocument = async (
     let documents = [];
     let total = 0;
 
+    const dateFilterSql = Prisma.sql`
+      ${from ? Prisma.sql`AND "createdAt" >= ${new Date(from)}` : Prisma.empty}
+      ${to ? Prisma.sql`AND "createdAt" <= ${new Date(to)}` : Prisma.empty}
+    `;
+
     try {
       documents = await prisma.$queryRaw`
                 SELECT
                     id,
                     title,
                     description,
+                    content,
                     url,
                     "fileType",
                     "fileName",
@@ -97,6 +102,7 @@ export const searchDocument = async (
                     ) AS rank
                 FROM "Document"
                 WHERE search_vector @@ plainto_tsquery('english', ${query})
+                ${dateFilterSql}
                 ORDER BY rank DESC, "createdAt" ${orderDirection}
                 LIMIT ${limit}
                 OFFSET ${skip};
@@ -108,7 +114,8 @@ export const searchDocument = async (
       const countResult = await prisma.$queryRaw`
                 SELECT COUNT(*) AS total
                 FROM "Document"
-                WHERE search_vector @@ plainto_tsquery('english', ${query});
+                WHERE search_vector @@ plainto_tsquery('english', ${query})
+                ${dateFilterSql};
 `;
 
       total = Number(countResult[0]?.total || 0);
@@ -132,6 +139,12 @@ export const searchDocument = async (
         ],
       };
 
+      if (from || to) {
+        whereClause.createdAt = {};
+        if (from) whereClause.createdAt.gte = new Date(from);
+        if (to) whereClause.createdAt.lte = new Date(to);
+      }
+
       const [fallbackDocs, fallbackTotal] = await Promise.all([
         prisma.document.findMany({
           where: whereClause,
@@ -142,11 +155,12 @@ export const searchDocument = async (
         prisma.document.count({ where: whereClause }),
       ]);
 
-      total = fallbackTotal;
-      documents = fallbackDocs.map((doc) => ({
+      total = fallbackTotal || 0;
+      documents = (fallbackDocs || []).map((doc) => ({
         id: doc.id,
         title: doc.title,
         description: doc.description,
+        content: doc.content,
         url: doc.url,
         fileType: doc.fileType,
         fileName: doc.fileName,

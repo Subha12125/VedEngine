@@ -1,4 +1,4 @@
-import { searchDocumentController, getSuggestions } from "../controller/search.controller.js";
+import { searchDocumentController, getSuggestions, searchAIController, generateRAGController } from "../controller/search.controller.js";
 import { searchSchema, searchSuggestionSchema } from "../validators/search.validator.js";
 
 // Zod validation preHandler for Fastify
@@ -20,8 +20,16 @@ const validateQuery = (schema) => async (request, reply) => {
 // @param options - options
 export default async function searchRoutes(fastify){
     // Search document
-    // GET /api/v1/search?q=query&page=1&limit=10
+    // GET /api/v1/search?q=query&page=1&limit=10&ai=true
     fastify.get("/", { preHandler: validateQuery(searchSchema) }, searchDocumentController);
+
+    // AI Semantic Search and RAG Answer
+    // GET /api/v1/search/ai?q=query&limit=5
+    fastify.get("/ai", searchAIController);
+
+    // Direct RAG generation
+    // POST /api/v1/search/rag
+    fastify.post("/rag", generateRAGController);
 
     // Search suggestion
     // GET /api/v1/search/suggestions?q=query

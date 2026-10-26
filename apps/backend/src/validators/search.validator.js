@@ -11,6 +11,7 @@ export const searchSchema = z.object({
     sort: z.enum(["newest", "oldest"]).optional().default("newest"),
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
+    ai: z.union([z.boolean(), z.string()]).optional().default(false),
 })
 
 

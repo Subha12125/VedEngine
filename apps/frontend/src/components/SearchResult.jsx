@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 /**
  * SearchResult Component - Google Web Search Engine Style
@@ -50,7 +50,7 @@ export default function SearchResult({ result }) {
       const parsedUrl = new URL(targetUrl);
       domain = parsedUrl.hostname; // e.g. "wikipedia.org"
     }
-  } catch (e) {
+  } catch {
     domain = 'vedengine.com';
   }
 

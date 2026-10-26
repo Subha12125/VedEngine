@@ -66,9 +66,13 @@ export const uploadAPI = {
 
 // 4. AI Search Services
 export const searchAPI = {
-  query: (searchTerm, page = 1, limit = 10) =>
+  query: (searchTerm, page = 1, limit = 10, ai = true) =>
     api.get('/search', {
-      params: { q: searchTerm, page, limit },
+      params: { q: searchTerm, page, limit, ai },
+    }),
+  semanticQuery: (searchTerm, limit = 5) =>
+    api.get('/search/ai', {
+      params: { q: searchTerm, limit },
     }),
   getSuggestions: (searchTerm) =>
     api.get('/search/suggestions', {

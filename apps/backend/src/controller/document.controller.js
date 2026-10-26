@@ -25,7 +25,8 @@ export const updateExistingDocument = async (request, reply) => {
 // Get All Documents
 export const getAllDocuments = async (request, reply) => {
     try {
-        const documents = await getAllDocument();
+        const limit = request.query?.limit ? Number(request.query.limit) : 50;
+        const documents = await getAllDocument(limit);
         return reply.code(200).send({ status: "Success", data: documents, success: true });
     } catch (error) {
         console.log(error);

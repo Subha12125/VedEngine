@@ -40,6 +40,7 @@ const buildApp = async()=> {
     await app.register(healthCheckRoute, { prefix: '/api/v1' });
     // Registering document routes
     await app.register(documentRoutes, { prefix: '/api/v1' });
+    await app.register(documentRoutes, { prefix: '/api/v1/documents' });
     // Registering search log routes
     await app.register(searchLogRoutes, { prefix: '/api/v1/search-log' });
     // Registering search routes

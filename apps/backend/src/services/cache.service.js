@@ -32,7 +32,7 @@ export async function invalidateSearchCache() {
                 await redis.del(...keys);
                 deletedCount += keys.length;
             }
-        } while (cursor !== 0);
+        } while (cursor !== 0 && cursor !== "0" && cursor != null);
 
         if (deletedCount > 0) {
             console.log(`🗑️  Search cache invalidated: ${deletedCount} key(s) cleared`);
